@@ -1,0 +1,13 @@
+# virtual env
+.venv/
+venv/
+
+# pycache
+__pycache__/
+*.pyc
+
+# idea
+.idea/
+
+# caches
+.pytest_cache/
