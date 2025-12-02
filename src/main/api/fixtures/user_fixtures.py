@@ -13,7 +13,7 @@ def user_request(api_manager: ApiManager):
 
 @pytest.fixture(scope='function')
 def user_request_1(api_manager: ApiManager):
-    user_data: CreateUserRequest = RandomModelGenerator.generate(CreateUserRequest)
+    user_data: CreateUserRequest = RandomModelGenerator.generate(CreateUserRequest) # PR
     api_manager.admin_steps.create_user(user_data)
     return user_data
 
