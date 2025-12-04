@@ -144,6 +144,11 @@ class UserSteps(BaseSteps):
                 balance=amount
             )
         )
+    def repeat(self, times: int, func, *args, **kwargs):
+        results = []
+        for i in range(times):
+            results.append(func(*args, **kwargs))
+        return results
 
 
 

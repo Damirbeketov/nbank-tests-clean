@@ -1,4 +1,7 @@
 import pytest
+
+from src.main.api.models.transaction_type import TransactionType
+from src.main.api.fixtures.user_fixtures import deposit_amount
 from src.main.api.classes.api_manager import ApiManager
 from src.main.api.models.create_user_request import CreateUserRequest
 
@@ -7,17 +10,17 @@ from src.main.api.models.create_user_request import CreateUserRequest
 class TestDeposit:
 
     @pytest.mark.usefixtures('user_request', 'api_manager')
-    def test_deposit(self, api_manager: ApiManager, user_request: CreateUserRequest):
+    def test_deposit(self, api_manager: ApiManager, user_request: CreateUserRequest, deposit_amount):
         api_manager.user_steps.login(user_request)
         account = api_manager.user_steps.create_account(user_request)
 
         deposit = api_manager.user_steps.deposit_account(
             user_request,
             account.id,
-            5000
+            deposit_amount
         )
 
-        assert deposit.balance == 5000
+        assert deposit.balance == deposit_amount
         assert deposit.id == account.id
 
         transactions = api_manager.user_steps.get_account_transactions(
@@ -26,8 +29,8 @@ class TestDeposit:
 
         tx = transactions[0]
 
-        assert tx.amount == 5000
-        assert tx.type == "DEPOSIT"
+        assert tx.amount == deposit_amount
+        assert tx.type == TransactionType.DEPOSIT
         assert tx.relatedAccountId == account.id
 
     @pytest.mark.parametrize(
@@ -55,5 +58,5 @@ class TestDeposit:
         tx = transactions[0]
 
         assert tx.amount == balance
-        assert tx.type == "DEPOSIT"
+        assert tx.type == TransactionType.DEPOSIT
         assert tx.relatedAccountId == account.id

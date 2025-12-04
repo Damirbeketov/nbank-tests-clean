@@ -1,5 +1,5 @@
 import pytest
-
+from src.main.api.models.transaction_type import TransactionType
 
 
 @pytest.mark.api
@@ -16,8 +16,13 @@ class TestTransferAccount:
         account_2 = api_manager.user_steps.create_account(user_request)
 
         # Два пополнения по 5000
-        api_manager.user_steps.deposit_account(user_request, account_1.id, 5000)
-        api_manager.user_steps.deposit_account(user_request, account_1.id, 5000)
+        api_manager.user_steps.repeat(
+            2,
+            api_manager.user_steps.deposit_account,
+            user_request,
+            account_1.id,
+            5000
+        )
 
         # Трансфер
         transfer = api_manager.user_steps.transfer_account(
@@ -40,6 +45,6 @@ class TestTransferAccount:
         tx = transactions[0]
 
         assert tx.amount == amount
-        assert tx.type == "TRANSFER_IN"
+        assert tx.type == TransactionType.TRANSFER_IN
         assert tx.relatedAccountId == account_1.id
 
