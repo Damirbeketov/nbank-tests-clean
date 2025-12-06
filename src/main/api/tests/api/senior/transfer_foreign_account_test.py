@@ -12,12 +12,11 @@ class TestTransferForeignAccount:
         api_manager.user_steps.deposit_account(user_request, account_1.id, deposit_amount)
 
         # Пробуем перевести сумму, превышающую баланс
-        api_manager.user_steps.transfer_account_negative(
+        api_manager.user_steps.transfer_foreign_account_negative(
             user_request,
             account_1.id,
             account_2.id,
-            invalid_amount,
-            "Invalid transfer: insufficient funds or invalid accounts",
+            invalid_amount
         )
 
         # Проверяем, что перевод НЕ создал транзакций

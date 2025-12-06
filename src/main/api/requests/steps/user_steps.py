@@ -114,7 +114,7 @@ class UserSteps(BaseSteps):
         return CrudRequester(
             RequestSpecs.auth_as_user(user_request.username, user_request.password),
             Endpoint.TRANSFER_ACCOUNT,
-            ResponseSpecs.bad_request_with_text(expected_message)
+            ResponseSpecs.bad_request_text(expected_message)
         ).post(
             TransferRequest(
                 senderAccountId=sender_account_id,
@@ -149,6 +149,19 @@ class UserSteps(BaseSteps):
         for i in range(times):
             results.append(func(*args, **kwargs))
         return results
+
+    def transfer_foreign_account_negative(self, user_request, sender_account_id, receiver_account_id, amount):
+        return CrudRequester(
+            RequestSpecs.auth_as_user(user_request.username, user_request.password),
+            Endpoint.TRANSFER_ACCOUNT,
+            ResponseSpecs.invalid_transfer_error()
+        ).post(
+            TransferRequest(
+                senderAccountId=sender_account_id,
+                receiverAccountId=receiver_account_id,
+                amount=amount
+            )
+        )
 
 
 

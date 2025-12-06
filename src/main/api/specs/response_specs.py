@@ -75,3 +75,9 @@ class ResponseSpecs:
         def check(response: Response):
             pass
         return check
+
+    @staticmethod
+    def invalid_transfer_error():
+        return ResponseSpecs.bad_request_text(
+            "Invalid transfer: insufficient funds or invalid accounts"
+        )
