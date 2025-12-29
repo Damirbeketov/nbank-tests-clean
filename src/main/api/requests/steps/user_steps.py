@@ -1,5 +1,9 @@
+from typing import List, Optional
+
 import requests
 
+from src.main.api.classes.session_storage import SessionStorage
+from src.main.api.models.create_account_response import CreateAccountResponse
 from src.main.api.models.get_account_transaction_response import GetAccountTransactionResponse
 from src.main.api.configs.config import Config
 from src.main.api.models.deposit_request import DepositRequest
@@ -162,6 +166,23 @@ class UserSteps(BaseSteps):
                 amount=amount
             )
         )
+
+    def get_all_accounts(
+            self,
+            user_request: Optional[CreateUserRequest] = None
+    ) -> List[CreateAccountResponse]:
+        if user_request is None:
+            user_request = SessionStorage.get_current_user()
+
+        user_accounts: List[CreateAccountResponse] = ValidatedCrudRequester(
+            RequestSpecs.auth_as_user(user_request.username, user_request.password),
+            Endpoint.GET_CUSTOMER_ACCOUNTS,
+            ResponseSpecs.request_returns_ok()
+        ).get()
+
+        return user_accounts
+
+
 
 
 

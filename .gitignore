@@ -4,3 +4,6 @@
 tests.zip
 __pycache__/
 *.py[cod]
+.DS_Store
+NBank-UI/
+NBank-UI.zip
