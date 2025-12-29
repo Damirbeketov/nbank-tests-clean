@@ -1,3 +1,5 @@
+from typing import List
+
 from src.main.api.generators.random_model_generator import RandomModelGenerator
 from src.main.api.models.create_user_request import CreateUserRequest
 from src.main.api.models.login_user_request import LoginUserRequest
@@ -41,4 +43,12 @@ class AdminSteps(BaseSteps):
             Endpoint.ADMIN_DELETE_USER,
             ResponseSpecs.entity_was_deleted()
         ).delete(id)
+
+    def get_all_users(self) -> List[CreateUserRequest]:
+        response = ValidatedCrudRequester(
+            RequestSpecs.admin_auth_spec(),
+            Endpoint.ADMIN_GET_ALL_USERS,
+            ResponseSpecs.request_returns_ok()
+        ).get()
+        return response
 

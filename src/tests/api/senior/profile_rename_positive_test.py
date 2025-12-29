@@ -20,7 +20,7 @@ class TestProfileRename:
         assert new_name.message == "Profile updated successfully"
 
         # проверка изменения имени
-        rename =api_manager.user_steps.get_customer_profile(user_request)
+        rename = api_manager.user_steps.get_customer_profile(user_request)
         assert rename.name == name
 
 
