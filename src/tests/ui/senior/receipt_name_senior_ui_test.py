@@ -73,16 +73,15 @@ class TestReceiptNameSeniorUI:
         )
         dashboard.check_alert_message_and_accept(BankAlert.TRANSFER_SUCCESS)
 
-        tx_in = None
-        for _ in range(10):  # ~3 секунды
-            txs_to = api_manager.user_steps.get_account_transactions(current_user, to_account.id)
-            transfer_ins = [t for t in txs_to if t.type == TransactionType.TRANSFER_IN]
-            if transfer_ins:
-                tx_in = transfer_ins[-1]
-                break
-            page.wait_for_timeout(300)
+        txs_to = api_manager.user_steps.wait_transfer_in_with_retry(
+            current_user,
+            to_account.id,
+            transfer_amount,
+            page=page,
+        )
 
-        assert tx_in is not None, "TRANSFER_IN not found on recipient account"
+        tx_in = txs_to[-1]
+
         assert tx_in.amount == transfer_amount
         assert tx_in.type == TransactionType.TRANSFER_IN
         assert tx_in.relatedAccountId == from_account.id

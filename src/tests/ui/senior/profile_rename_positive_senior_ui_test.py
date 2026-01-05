@@ -66,20 +66,12 @@ class TestProfileRenamePositiveSeniorUI:
         )
         dashboard.check_alert_message_and_accept(BankAlert.TRANSFER_SUCCESS)
 
-        def has_transfer_in():
-            txs = api_manager.user_steps.get_account_transactions(current_user, to_account.id)
-            return [t for t in txs if t.type == TransactionType.TRANSFER_IN and t.amount == transfer_amount]
-
-        txs_to = None
-        for _ in range(10):
-            txs_to = has_transfer_in()
-            if txs_to:
-                break
-            page.wait_for_timeout(300)
-
-        assert txs_to, "TRANSFER_IN не появился в истории транзакций"
+        txs_to = api_manager.user_steps.wait_transfer_in_with_retry(
+            current_user,
+            to_account.id,
+            transfer_amount,
+            page=page,
+        )
 
         tx = txs_to[-1]
-        assert tx.amount == transfer_amount
-        assert tx.type == TransactionType.TRANSFER_IN
         assert tx.relatedAccountId == from_account.id
