@@ -1,5 +1,7 @@
 from cProfile import Profile
+from typing import List
 
+from classes.session_storage import SessionStorage
 from src.main.api.models.get_account_transaction_response import GetAccountTransactionResponse
 from src.main.api.models.create_user_request import CreateUserRequest
 from src.main.api.generators.random_model_generator import RandomModelGenerator
@@ -67,3 +69,23 @@ class UserSteps(BaseSteps):
             ResponseSpecs.request_returns_ok()
         ).put(ProfileRequest(name=name))
         return profile_response
+
+    def get_all_accounts(self, user_request: CreateUserRequest) -> List[CreateAccountResponse]:
+        user_accounts: List[CreateAccountResponse] = ValidatedCrudRequester(
+            RequestSpecs.auth_as_user(user_request.username, user_request.password),
+            Endpoint.GET_CUSTOMER_ACCOUNTS,
+            ResponseSpecs.request_returns_ok()
+        ).get()
+
+        return user_accounts
+
+
+    def get_profile(self, user_request: CreateUserRequest) -> CreateUserResponse:
+        user_profile: CreateUserResponse = ValidatedCrudRequester(
+            RequestSpecs.auth_as_user(user_request.username, user_request.password),
+            Endpoint.GET_USER_PROFILE,
+            ResponseSpecs.request_returns_ok()
+        ).get()
+
+        return user_profile
+

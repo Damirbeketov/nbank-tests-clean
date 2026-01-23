@@ -1,5 +1,11 @@
-import requests
+from typing import List, Optional
 
+import requests
+from playwright.sync_api import Page
+
+from src.main.api.models.transaction_type import TransactionType
+from src.main.api.classes.session_storage import SessionStorage
+from src.main.api.models.create_account_response import CreateAccountResponse
 from src.main.api.models.get_account_transaction_response import GetAccountTransactionResponse
 from src.main.api.configs.config import Config
 from src.main.api.models.deposit_request import DepositRequest
@@ -162,6 +168,59 @@ class UserSteps(BaseSteps):
                 amount=amount
             )
         )
+
+    def get_all_accounts(
+            self,
+            user_request: Optional[CreateUserRequest] = None
+    ) -> List[CreateAccountResponse]:
+        if user_request is None:
+            user_request = SessionStorage.get_current_user()
+
+        user_accounts: List[CreateAccountResponse] = ValidatedCrudRequester(
+            RequestSpecs.auth_as_user(user_request.username, user_request.password),
+            Endpoint.GET_CUSTOMER_ACCOUNTS,
+            ResponseSpecs.request_returns_ok()
+        ).get()
+
+        return user_accounts
+
+    def assert_no_transactions_with_retry(
+            self,
+            user,
+            account_id: str,
+            page: Page,
+            retries: int = 10,
+            delay_ms: int = 300,
+    ) -> None:
+        txs = []
+        for _ in range(retries):
+            txs = self.get_account_transactions(user, account_id)
+            if len(txs) == 0:
+                return
+            page.wait_for_timeout(delay_ms)
+
+        assert len(txs) == 0
+
+    def wait_transfer_in_with_retry(
+            self,
+            user,
+            account_id: str,
+            amount: float,
+            page: Page,
+            retries: int = 10,
+            delay_ms: int = 300,
+    ):
+        last_txs = []
+        for _ in range(retries):
+            last_txs = self.get_account_transactions(user, account_id)
+            found = [t for t in last_txs if t.type == TransactionType.TRANSFER_IN and t.amount == amount]
+            if found:
+                return found
+            page.wait_for_timeout(delay_ms)
+
+        assert False
+
+
 
 
 
